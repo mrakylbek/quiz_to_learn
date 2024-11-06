@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'json_data.dart';
 
 bool goNext = false;
+bool showOptions = false;
 
 String currentWord = '';
 List<String> options = [];
@@ -42,6 +43,7 @@ class _QuizPageState extends State<QuizPage> {
     super.initState();
     words = flashcards.keys.toList()..shuffle();
     goNext = false;
+    showOptions = false;
     currentWord = words.first;
     options = getOptions(flashcards[currentWord]!);
   }
@@ -112,6 +114,7 @@ class _QuizPageState extends State<QuizPage> {
                     setState(() {
                       words = flashcards.keys.toList()..shuffle();
                       goNext = false;
+                      showOptions = false;
                       currentWord = words.first;
                       options = getOptions(flashcards[currentWord]!);
                     });
@@ -165,25 +168,61 @@ class _QuizPageState extends State<QuizPage> {
                   ),
                 ),
                 const SizedBox(height: 30.0),
-                ...options.map((option) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.all(16.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                showOptions
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ...options.map((option) => Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.all(16.0),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    backgroundColor: Colors.blueAccent,
+                                  ),
+                                  onPressed: () => goNext
+                                      ? null
+                                      : checkAnswer(currentWord, option),
+                                  child: Text(
+                                    option,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                  ),
+                                ),
+                              )),
+                        ],
+                      )
+                    : InkWell(
+                        radius: 0,
+                        onTap: () {
+                          setState(() {
+                            showOptions = !showOptions;
+                          });
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          // margin: const EdgeInsets.all(24),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF643322),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          backgroundColor: Colors.blueAccent,
-                        ),
-                        onPressed: () =>
-                            goNext ? null : checkAnswer(currentWord, option),
-                        child: Text(
-                          option,
-                          style: const TextStyle(
-                              fontSize: 18, color: Colors.white),
+                          child: const Text(
+                            'Show',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ),
-                    )),
                 const SizedBox(height: 20),
                 goNext
                     ? InkWell(
@@ -191,6 +230,7 @@ class _QuizPageState extends State<QuizPage> {
                         onTap: () {
                           setState(() {
                             goNext = false;
+                            showOptions = false;
                             currentWord = words.first;
                             options = getOptions(flashcards[currentWord]!);
                           });
